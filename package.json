@@ -1,7 +1,8 @@
 {
-  "name": "bridge_assets",
+  "name": "ic-bridge",
+  "author": "Rikus Wiehahn",
   "version": "0.1.0",
-  "description": "Internet Computer starter application",
+  "description": "Internet Computer to Web 2.0 Bridge",
   "keywords": [
     "Internet Computer",
     "Motoko",
@@ -9,28 +10,34 @@
     "Canister"
   ],
   "scripts": {
-    "build": "webpack",
+    "start": "node dist/server --env development",
+    "dev": "ts-node-dev --no-notify --respawn --transpile-only --inspect -- src/server",
+    "build": "tsc --rootDir src/ --outDir dist/ --esModuleInterop true --allowJs true",
     "prebuild": "npm run copy:types",
-    "start": "webpack serve --mode development --env development",
     "prestart": "npm run copy:types",
     "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --delete src/declarations"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.7",
+    "ts-node-dev": "^1.1.8"
   },
   "devDependencies": {
     "@dfinity/agent": "0.10.2",
     "@dfinity/candid": "0.10.2",
     "@dfinity/principal": "0.10.2",
-    "assert": "2.0.0",
     "buffer": "6.0.3",
-    "copy-webpack-plugin": "^9.0.1",
-    "events": "3.3.0",
-    "html-webpack-plugin": "5.5.0",
-    "process": "0.11.10",
-    "stream-browserify": "3.0.0",
-    "terser-webpack-plugin": "5.2.5",
-    "util": "0.12.4",
-    "webpack": "5.63.0",
-    "webpack-cli": "4.9.1",
-    "webpack-dev-server": "^4.4.0"
+    "@types/bcrypt": "^5.0.0",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/lodash": "^4.14.177",
+    "@types/node": "^16.4.10",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.5"
   },
   "browserslist": [
     "last 2 chrome version",

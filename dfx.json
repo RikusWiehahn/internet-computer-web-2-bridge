@@ -4,19 +4,6 @@
       "candid": "src/bridge/bridge.did",
       "package": "bridge",
       "type": "rust"
-    },
-    "bridge_assets": {
-      "dependencies": [
-        "bridge"
-      ],
-      "frontend": {
-        "entrypoint": "src/bridge_assets/src/index.html"
-      },
-      "source": [
-        "src/bridge_assets/assets",
-        "dist/bridge_assets/"
-      ],
-      "type": "assets"
     }
   },
   "defaults": {

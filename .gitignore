@@ -16,3 +16,6 @@ target/
 # frontend code
 node_modules/
 dist/
+
+# environment
+.env
