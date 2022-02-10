@@ -1,5 +1,7 @@
 # Web 2 Bridge for IC Dapps
-# Running the project
+
+## In progress!
+## Running the project
 
 Start the bridge canister:
 
