@@ -1,22 +1,24 @@
+use crate::keys;
+use crate::state::*;
 use crate::types::*;
+use crate::utils::*;
 use ic_cdk_macros::*;
-use std::convert::TryFrom;
+use std::cell::RefMut;
+use std::cell::Ref;
 use std::result::Result;
 use std::vec::Vec;
-use uriparse::{Path, PathError};
-use ic_cdk::export::candid::{CandidType, Deserialize};
-use ic_cdk::storage;
-use std::cell::RefCell;
-use std::collections::HashMap;
-
 
 #[update]
-async fn push_web_request(request: HttpRequest) -> PushedWebRequest {
-    let res = WebRequestQueued {
-        queued: false,
-        web_request_id: request.request_id,
+async fn push_web_request(access_key: String, request: HttpRequest) -> PushedWebRequest {
+    let mut res = PushedWebRequest {
+        id: None,
         message: "".to_string(),
     };
+    if access_key != keys::ACCESS_KEY {
+        res.message = "Access key is invalid".to_string();
+        return res;
+    }
+
     let uuid_res: Result<String, String> = generate_uuid().await;
     if uuid_res.is_err() {
         res.message = uuid_res.err().unwrap().to_string();
@@ -24,114 +26,137 @@ async fn push_web_request(request: HttpRequest) -> PushedWebRequest {
     }
     let uuid = uuid_res.unwrap();
 
+    let http_request_to_store = StoredHttpRequest {
+        id: uuid.clone(),
+        pulled: false,
+        method: request.method.to_string(),
+        url: request.url.to_string(),
+        headers: request.headers,
+        body: request.body,
+    };
+
     STATE.with(|state: &GlobalState| {
-        let web_requests: Ref<EnquiryHashMap> = state.web_requests.borrow();
-        web_requests.push(uuid.clone(), request.clone());
+        let mut web_requests: RefMut<WebRequestsList> = state.web_requests.borrow_mut();
+        web_requests.push(http_request_to_store);
     });
 
-    res.queued = true;
-    res.web_request_id = uuid;
+    res.id = Some(uuid);
     return res;
 }
 
 #[update]
-async fn pull_web_request(access_key: String) -> WebRequestPulled {
-   
+async fn pull_web_requests(access_key: String) -> PulledWebRequests {
+    let mut res: PulledWebRequests = PulledWebRequests {
+        requests: Vec::new(),
+        message: "".to_string(),
+    };
+    if access_key != keys::ACCESS_KEY {
+        res.message = "Access key is invalid".to_string();
+        return res;
+    }
+
+    let mut requests: Vec<StoredHttpRequest> = Vec::new();
+    STATE.with(|state: &GlobalState| {
+        let mut web_requests: RefMut<WebRequestsList> = state.web_requests.borrow_mut();
+        for request in web_requests.iter_mut() {
+            if !request.pulled {
+                request.pulled = true;
+                requests.push(request.clone());
+            }
+        }
+    });
+
+    res.requests = requests;
+    return res;
 }
 
 #[update]
-async fn push_web_response(access_key: String) -> WebResponsePushed {
-   
+async fn push_web_response(access_key: String, response: StoredHttpResponse) -> PushedWebResponse {
+    let mut res = PushedWebResponse {
+        id: None,
+        message: "".to_string(),
+    };
+    if response.id == "" {
+        res.message = "Response id is invalid".to_string();
+        return res;
+    }
+    if access_key != keys::ACCESS_KEY {
+        res.message = "Access key is invalid".to_string();
+        return res;
+    }
+    STATE.with(|state: &GlobalState| {
+        let mut web_responses: RefMut<WebResponsesList> = state.web_responses.borrow_mut();
+        let mut web_requests: RefMut<WebRequestsList> = state.web_requests.borrow_mut();
+
+        web_responses.push(response.clone());
+        let mut req_index: Option<usize> = None;
+        for (i, request) in web_requests.iter_mut().enumerate() {
+            if request.id == response.id {
+                req_index = Some(i);
+                break;
+            }
+        }
+        if req_index.is_some() {
+            web_requests.remove(req_index.unwrap());
+        }
+    });
+
+    res.id = Some(response.id.clone());
+    return res;
 }
 
 #[update]
-async fn pull_web_response(access_key: String) -> WebResponsePulled {
-
-   
-}
-
-//
-//   ####  #####   ##   ##### ######
-//  #        #    #  #    #   #
-//   ####    #   #    #   #   #####
-//       #   #   ######   #   #
-//  #    #   #   #    #   #   #
-//   ####    #   #    #   #   ######
-
-pub type WebRequestMap = HashMap<String, HttpRequest>;
-pub type WebResponseMap = HashMap<String, HttpResponse>;
-
-#[derive(Clone, Debug, Default, CandidType, Deserialize)]
-pub struct GlobalState {
-    pub web_requests: RefCell<WebRequestMap>,
-    pub web_responses: RefCell<WebResponseMap>,
-}
-
-thread_local! {
-    pub static STATE: GlobalState = GlobalState {
-        web_requests: RefCell::new(WebRequestMap::new()),
-        web_responses: RefCell::new(WebResponseMap::new()),
+async fn pull_web_response(access_key: String, id: String) -> PulledWebResponse {
+    let mut res: PulledWebResponse = PulledWebResponse {
+        pending: false,
+        response: None,
+        message: "".to_string(),
+    };
+    if access_key != keys::ACCESS_KEY {
+        res.message = "Access key is invalid".to_string();
+        return res;
     }
-}
 
-//
-//  #    # #####   ####  #####    ##   #####  ######
-//  #    # #    # #    # #    #  #  #  #    # #
-//  #    # #    # #      #    # #    # #    # #####
-//  #    # #####  #  ### #####  ###### #    # #
-//  #    # #      #    # #   #  #    # #    # #
-//   ####  #       ####  #    # #    # #####  ######
+    STATE.with(|state: &GlobalState| {
+        let mut web_responses: RefMut<WebResponsesList> = state.web_responses.borrow_mut();
 
-#[pre_upgrade]
-fn save_data() {
-    STATE.with(|s| {
-        let web_requests = s.web_requests.borrow();
-        let web_responses = s.web_responses.borrow();
-
-        let res =
-            storage::stable_save((web_requests.clone(), web_responses.clone()));
-        if res.is_err() {
-            println!("Error saving data: {:?}", res.err().unwrap());
+        let mut res_index: Option<usize> = None;
+        let mut response: Option<StoredHttpResponse> = None;
+        for (i, stored_response) in web_responses.iter_mut().enumerate() {
+            if stored_response.id == id {
+                res_index = Some(i);
+                response = Some(stored_response.clone());
+            }
+        }
+        if res_index.is_some() {
+            web_responses.remove(res_index.unwrap());
+            let response_to_return = response.unwrap();
+            res.response = Some(HttpResponse {
+                headers: response_to_return.headers,
+                body: response_to_return.body,
+                status_code: response_to_return.status_code,
+            });
         }
     });
-}
 
-#[post_upgrade]
-fn retrieve_data() {
-    STATE.with(|state| {
-        let res = storage::stable_restore();
-        if res.is_err() {
-            println!("Error retrieving data: {:?}", res.err().unwrap());
-            return;
-        } else {
-            let (web_requests, web_responses) = res.unwrap();
-            state.web_requests.replace(web_requests);
-            state.web_responses.replace(web_responses);
+    if res.response.is_some() {
+        res.pending = false;
+        return res;
+    }
+
+    STATE.with(|state: &GlobalState| {
+        let web_requests: Ref<WebRequestsList> = state.web_requests.borrow();
+        for stored_request in web_requests.iter() {
+            if stored_request.id == id {
+                res.pending = true;
+            }
         }
     });
-}
-
-//
-//  #    # #    # # #####
-//  #    # #    # # #    #
-//  #    # #    # # #    #
-//  #    # #    # # #    #
-//  #    # #    # # #    #
-//   ####   ####  # #####
-
-pub async fn generate_uuid() -> Result<String, String> {
-    let res = ic_cdk::call(Principal::management_canister(), "raw_rand", ()).await;
-    if res.is_err() {
-        return Err("Failed to generate UUID".to_string());
+    if res.pending {
+        res.message = "Web request is still pending".to_string();
+        return res;
     }
-    let (bytes,): (Vec<u8>,) = res.unwrap();
-    let mut random_bytes: [u8; 16] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-    for i in 0..16 {
-        random_bytes[i] = bytes[i];
-    }
-    let uuid = Builder::from_bytes(random_bytes)
-        .set_variant(Variant::RFC4122)
-        .set_version(Version::Random)
-        .build();
-    Ok(uuid.to_string())
+
+    res.message = "Web request is not found".to_string();
+    return res;
 }
