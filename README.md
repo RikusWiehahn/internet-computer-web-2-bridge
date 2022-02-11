@@ -13,8 +13,17 @@ dfx start --background
 dfx deploy
 ```
 
-Once the job completes, your application will be available at `http://localhost:8000?canisterId={asset_canister_id}`.
+Create a file called .env in your project root directory and save the generated bridge canister id (found in `.dfx/local/canister_ids.json`) to the LOCAL_DEV_CANISTER_ID key:
 
+```.env
+LOCAL_DEV_CANISTER_ID="<YOUR_LOCAL_CANISTER_ID"
+PRODUCTION_CANISTER_ID="<YOUR_LIVE_IC_CANISTER_ID>"
+LOCAL_DEV_HOST="http://localhost:8000"
+PRODUCTION_HOST="<YOUR_LIVE_IC_CANISTER_URL>"
+BRIDGE_ACCESS_KEY="<RANDOM_KEY_FOR_SECURE_REQUESTS_OVER_THE_BRIDGE>"
+```
+
+Create a random key string using a ssh keygen or some other method and paste it into the BRIDGE_ACCESS_KEY variable in your .env file.
 
 Run the nodejs server
 
@@ -27,6 +36,8 @@ npm run build
 npm start
 
 ```
+
+Now you are ready to test the bridge.
 
 Call the bridge canister with the request you would like to send to an off-chain service. The bridge canister will stash the request in memory and send back a request id.
 

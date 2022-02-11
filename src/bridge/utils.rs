@@ -1,6 +1,8 @@
 
-use ic_cdk::export::Principal;
+use ic_cdk::{export::Principal};
 use uuid::{Builder, Variant, Version};
+use crate::ACCESS_KEY::BRIDGE_ACCESS_KEY;
+
 
 pub async fn generate_uuid() -> Result<String, String> {
   let res = ic_cdk::call(Principal::management_canister(), "raw_rand", ()).await;
@@ -17,4 +19,11 @@ pub async fn generate_uuid() -> Result<String, String> {
       .set_version(Version::Random)
       .build();
   Ok(uuid.to_string())
+}
+
+pub fn verify_access_key(access_key: &str) -> Result<(), String> {
+    if access_key == BRIDGE_ACCESS_KEY {
+        return Ok(());
+    }
+    return Err("Access key is not valid".to_string());
 }

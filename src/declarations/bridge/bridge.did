@@ -1,3 +1,60 @@
+type PushedWebRequest = record {
+    "id": opt text;
+    "message": text;
+};
+
+type PulledWebRequests = record {
+    "requests": vec StoredHttpRequest;
+    "message": text;
+};
+
+type PushedWebResponse = record {
+    "id": opt text;
+    "message": text;
+};
+
+type PulledWebResponse = record {
+    "pending": bool;
+    "message": text;
+    "response": opt HttpResponse;
+};
+
+type HeaderField = vec text;
+
+type HttpRequest = record {
+    "method": text;
+    "url": text;
+    "headers": vec HeaderField;
+    "body": text;
+};
+
+type StoredHttpRequest = record {
+    "id": text;
+    "pulled": bool;
+    "method": text;
+    "url": text;
+    "headers": vec HeaderField;
+    "body": text;
+};
+
+type HttpResponse = record {
+    "status_code": nat;
+    "headers": vec HeaderField;
+    "body": text;
+};
+
+type StoredHttpResponse = record {
+    "id": text;
+    "created_at": float64;
+    "status_code": nat;
+    "headers": vec HeaderField;
+    "body": text;
+};
+
 service : {
-    "greet": (text) -> (text) query;
+    "ping": () -> (text) query;
+    "push_web_request": (access_key: text, request: HttpRequest) -> (PushedWebRequest);
+    "pull_web_requests": (access_key: text) -> (PulledWebRequests);
+    "push_web_response": (access_key: text, response: StoredHttpResponse) -> (PushedWebResponse);
+    "pull_web_response": (access_key: text, id: text) -> (PulledWebResponse);
 }

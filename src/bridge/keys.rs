@@ -1,1 +1,0 @@
-pub const ACCESS_KEY: &str = "access_key"; // Replace this with your own access key.

@@ -1,4 +1,3 @@
-use crate::keys;
 use crate::state::*;
 use crate::types::*;
 use crate::utils::*;
@@ -8,14 +7,21 @@ use std::cell::Ref;
 use std::result::Result;
 use std::vec::Vec;
 
+#[query]
+async fn ping() -> String {
+    return "pong".to_string();
+}
+
 #[update]
 async fn push_web_request(access_key: String, request: HttpRequest) -> PushedWebRequest {
     let mut res = PushedWebRequest {
         id: None,
         message: "".to_string(),
     };
-    if access_key != keys::ACCESS_KEY {
-        res.message = "Access key is invalid".to_string();
+    
+    let auth = verify_access_key(&access_key);
+    if auth.is_err() {
+        res.message = auth.err().unwrap();
         return res;
     }
 
@@ -26,7 +32,7 @@ async fn push_web_request(access_key: String, request: HttpRequest) -> PushedWeb
     }
     let uuid = uuid_res.unwrap();
 
-    let http_request_to_store = StoredHttpRequest {
+    let http_request_to_save = StoredHttpRequest {
         id: uuid.clone(),
         pulled: false,
         method: request.method.to_string(),
@@ -37,7 +43,7 @@ async fn push_web_request(access_key: String, request: HttpRequest) -> PushedWeb
 
     STATE.with(|state: &GlobalState| {
         let mut web_requests: RefMut<WebRequestsList> = state.web_requests.borrow_mut();
-        web_requests.push(http_request_to_store);
+        web_requests.push(http_request_to_save);
     });
 
     res.id = Some(uuid);
@@ -46,12 +52,14 @@ async fn push_web_request(access_key: String, request: HttpRequest) -> PushedWeb
 
 #[update]
 async fn pull_web_requests(access_key: String) -> PulledWebRequests {
+    
     let mut res: PulledWebRequests = PulledWebRequests {
         requests: Vec::new(),
         message: "".to_string(),
     };
-    if access_key != keys::ACCESS_KEY {
-        res.message = "Access key is invalid".to_string();
+    let auth = verify_access_key(&access_key);
+    if auth.is_err() {
+        res.message = auth.err().unwrap();
         return res;
     }
 
@@ -80,8 +88,9 @@ async fn push_web_response(access_key: String, response: StoredHttpResponse) -> 
         res.message = "Response id is invalid".to_string();
         return res;
     }
-    if access_key != keys::ACCESS_KEY {
-        res.message = "Access key is invalid".to_string();
+    let auth = verify_access_key(&access_key);
+    if auth.is_err() {
+        res.message = auth.err().unwrap();
         return res;
     }
     STATE.with(|state: &GlobalState| {
@@ -112,8 +121,9 @@ async fn pull_web_response(access_key: String, id: String) -> PulledWebResponse 
         response: None,
         message: "".to_string(),
     };
-    if access_key != keys::ACCESS_KEY {
-        res.message = "Access key is invalid".to_string();
+    let auth = verify_access_key(&access_key);
+    if auth.is_err() {
+        res.message = auth.err().unwrap();
         return res;
     }
 

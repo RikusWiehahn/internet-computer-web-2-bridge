@@ -19,3 +19,4 @@ dist/
 
 # environment
 .env
+ACCESS_KEY.rs

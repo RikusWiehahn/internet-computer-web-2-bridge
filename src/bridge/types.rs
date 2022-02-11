@@ -25,13 +25,7 @@ pub struct PulledWebResponse {
     pub response: Option<HttpResponse>,
 }
 
-//
-//  #    # ##### ##### #####
-//  #    #   #     #   #    #
-//  ######   #     #   #    #
-//  #    #   #     #   #####
-//  #    #   #     #   #
-//  #    #   #     #   #
+// HTTP 
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct HeaderField(pub String, pub String);
@@ -64,7 +58,7 @@ pub struct HttpResponse {
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct StoredHttpResponse {
     pub id: String,
-    pub created_at: String,
+    pub created_at: f64,
     pub status_code: u16,
     pub headers: Vec<HeaderField>,
     pub body: String,
