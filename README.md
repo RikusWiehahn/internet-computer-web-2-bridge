@@ -46,4 +46,4 @@ Call the bridge canister with the request you would like to send to an off-chain
 ```
 The off-chain node.js server will periodically pull the latest requests from the bridge canister, process them and send the response back to the bridge canister.
 
-The response can then be pulled from the bridge canister using the request's id
+The response can then be pulled from the bridge canister using the request's id.

@@ -1,7 +1,7 @@
 
 use ic_cdk::{export::Principal};
 use uuid::{Builder, Variant, Version};
-use crate::ACCESS_KEY::BRIDGE_ACCESS_KEY;
+use crate::keys::BRIDGE_ACCESS_KEY;
 
 
 pub async fn generate_uuid() -> Result<String, String> {
