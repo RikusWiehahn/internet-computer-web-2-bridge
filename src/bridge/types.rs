@@ -28,13 +28,10 @@ pub struct PulledWebResponse {
 // HTTP 
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
-pub struct HeaderField(pub String, pub String);
-
-#[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct HttpRequest {
     pub method: String,
     pub url: String,
-    pub headers: Vec<HeaderField>,
+    pub headers: Vec<Vec<String>>,
     pub body: String,
 }
 
@@ -44,14 +41,14 @@ pub struct StoredHttpRequest {
     pub pulled: bool,
     pub method: String,
     pub url: String,
-    pub headers: Vec<HeaderField>,
+    pub headers: Vec<Vec<String>>,
     pub body: String,
 }
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct HttpResponse {
     pub status_code: u16,
-    pub headers: Vec<HeaderField>,
+    pub headers: Vec<Vec<String>>,
     pub body: String,
 }
 
@@ -60,7 +57,7 @@ pub struct StoredHttpResponse {
     pub id: String,
     pub created_at: f64,
     pub status_code: u16,
-    pub headers: Vec<HeaderField>,
+    pub headers: Vec<Vec<String>>,
     pub body: String,
 }
 

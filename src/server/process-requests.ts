@@ -17,6 +17,7 @@ const fetchAndProcessWebRequests = async () => {
   try {
     const access_key = process.env.BRIDGE_ACCESS_KEY || "";
     const pulled_web_requests = await actor.pull_web_requests(access_key);
+    if (pulled_web_requests.requests.length > 0) console.log(pulled_web_requests);
 
     for (const req of pulled_web_requests.requests) {
       const result = await processWebRequest(req);
