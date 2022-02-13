@@ -38,6 +38,7 @@ pub struct HttpRequest {
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct StoredHttpRequest {
     pub id: String,
+    pub created_at: f64,
     pub pulled: bool,
     pub method: String,
     pub url: String,
@@ -47,7 +48,7 @@ pub struct StoredHttpRequest {
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct HttpResponse {
-    pub status_code: u16,
+    pub status_code: u128,
     pub headers: Vec<Vec<String>>,
     pub body: String,
 }
@@ -56,7 +57,7 @@ pub struct HttpResponse {
 pub struct StoredHttpResponse {
     pub id: String,
     pub created_at: f64,
-    pub status_code: u16,
+    pub status_code: u128,
     pub headers: Vec<Vec<String>>,
     pub body: String,
 }

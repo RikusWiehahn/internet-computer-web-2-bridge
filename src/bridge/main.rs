@@ -3,9 +3,11 @@ use crate::types::*;
 use crate::utils::*;
 use ic_cdk_macros::*;
 use std::cell::RefMut;
+use ic_cdk::api::time;
 use std::cell::Ref;
 use std::result::Result;
 use std::vec::Vec;
+
 
 #[query]
 async fn ping() -> String {
@@ -34,6 +36,7 @@ async fn push_web_request(access_key: String, request: HttpRequest) -> PushedWeb
 
     let http_request_to_save = StoredHttpRequest {
         id: uuid.clone(),
+        created_at: time() as f64,
         pulled: false,
         method: request.method.to_string(),
         url: request.url.to_string(),

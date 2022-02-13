@@ -1,7 +1,9 @@
-
 import { actor } from "./actor";
 import axios from "axios";
-import { StoredHttpRequest, StoredHttpResponse } from "../declarations/bridge/bridge.did.js";
+import {
+  StoredHttpRequest,
+  StoredHttpResponse,
+} from "../declarations/bridge/bridge.did.js";
 
 export const pollForRequests = async () => {
   try {
@@ -9,19 +11,21 @@ export const pollForRequests = async () => {
   } catch (e: any) {
     console.log(e);
   }
-  setTimeout(pollForRequests, 2000);
+  setTimeout(pollForRequests, 1000);
 };
 
 const fetchAndProcessWebRequests = async () => {
-  console.log("Fetching web requests");
+  // console.log("Fetching web requests");
   try {
     const access_key = process.env.BRIDGE_ACCESS_KEY || "";
     const pulled_web_requests = await actor.pull_web_requests(access_key);
-    if (pulled_web_requests.requests.length > 0) console.log(pulled_web_requests);
+    let num_requests = pulled_web_requests.requests.length;
+    if (num_requests > 0) console.log(`${num_requests} requests pulled`);
 
     for (const req of pulled_web_requests.requests) {
       const result = await processWebRequest(req);
-      await actor.push_web_response(access_key, result);
+      let saved = await actor.push_web_response(access_key, result);
+      // if (saved) console.log(saved, result);
     }
   } catch (e: any) {
     console.log({ e });
@@ -37,7 +41,7 @@ const processWebRequest: ProcessWebRequest = async (req) => {
     id: req.id,
     body: "",
     headers: [],
-    created_at: new Date().valueOf(),
+    created_at: new Date().valueOf() * 1000000,
     status_code: BigInt(400),
   };
   try {
@@ -58,9 +62,9 @@ const processWebRequest: ProcessWebRequest = async (req) => {
       data: JSON.parse(req.body),
     });
 
-    res.body = JSON.stringify(result.data);
+    res.body = JSON.stringify(result.data.data);
     res.status_code = BigInt(200);
-    res.headers = Object.fromEntries(req.headers);
+    res.headers = req.headers;
     return res;
   } catch (e: any) {
     console.log({ e });
