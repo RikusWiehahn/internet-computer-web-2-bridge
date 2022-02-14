@@ -1,1 +1,1 @@
-pub const BRIDGE_ACCESS_KEY: &str = "<YOUR_ACCESS_KEY>";
+pub const BRIDGE_ACCESS_CODE: &str = "<YOUR_ACCESS_CODE>";

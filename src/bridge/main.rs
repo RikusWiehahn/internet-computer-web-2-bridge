@@ -149,7 +149,6 @@ async fn pull_web_response(access_key: String, id: String) -> PulledWebResponse 
 
     STATE.with(|state: &GlobalState| {
         let mut web_responses: RefMut<WebResponsesList> = state.web_responses.borrow_mut();
-        ic_cdk::println!("responses count {:?}", web_responses.len());
 
         let mut res_index: Option<usize> = None;
         let mut response: Option<StoredHttpResponse> = None;

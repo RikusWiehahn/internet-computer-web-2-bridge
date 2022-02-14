@@ -1,7 +1,7 @@
 
 use ic_cdk::{export::Principal};
 use uuid::{Builder, Variant, Version};
-use crate::keys::BRIDGE_ACCESS_KEY;
+use crate::keys::BRIDGE_ACCESS_CODE;
 
 
 /*          
@@ -25,7 +25,7 @@ pub async fn generate_uuid() -> Result<String, String> {
 }
 
 pub fn verify_access_key(access_key: &str) -> Result<(), String> {
-    if access_key == BRIDGE_ACCESS_KEY {
+    if access_key == BRIDGE_ACCESS_CODE {
         return Ok(());
     }
     return Err("Access key is not valid".to_string());

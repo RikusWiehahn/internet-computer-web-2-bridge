@@ -17,7 +17,7 @@ export const pollForRequests = async () => {
 const fetchAndProcessWebRequests = async () => {
   // console.log("Fetching web requests");
   try {
-    const access_key = process.env.BRIDGE_ACCESS_KEY || "";
+    const access_key = process.env.BRIDGE_ACCESS_CODE || "";
     const pulled_web_requests = await actor.pull_web_requests(access_key);
     let num_requests = pulled_web_requests.requests.length;
     if (num_requests > 0) console.log(`${num_requests} requests pulled`);
