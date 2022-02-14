@@ -3,7 +3,12 @@ use std::cell::RefMut;
 use ic_cdk::api::time;
 use std::vec::Vec;
 
+/*
+    Auto clearing expired web requests
+*/
+
 static mut LAST_TIME_CLEANED: u64 = 0;
+
 #[export_name = "canister_heartbeat"]
 fn canister_heartbeat() {
     let duration: u64 = 1_000_000_000 * 60 * 15; // 15 minutes

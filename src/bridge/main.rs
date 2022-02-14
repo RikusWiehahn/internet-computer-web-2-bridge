@@ -1,18 +1,21 @@
 use crate::state::*;
 use crate::types::*;
 use crate::utils::*;
-use ic_cdk_macros::*;
-use std::cell::RefMut;
 use ic_cdk::api::time;
+use ic_cdk_macros::*;
 use std::cell::Ref;
+use std::cell::RefMut;
 use std::result::Result;
 use std::vec::Vec;
-
 
 #[query]
 async fn ping() -> String {
     return "pong".to_string();
 }
+
+/*
+    Method called by any canister to push a web request to the bridge canister.
+*/
 
 #[update]
 async fn push_web_request(access_key: String, request: HttpRequest) -> PushedWebRequest {
@@ -20,7 +23,7 @@ async fn push_web_request(access_key: String, request: HttpRequest) -> PushedWeb
         id: None,
         message: "".to_string(),
     };
-    
+
     let auth = verify_access_key(&access_key);
     if auth.is_err() {
         res.message = auth.err().unwrap();
@@ -53,9 +56,13 @@ async fn push_web_request(access_key: String, request: HttpRequest) -> PushedWeb
     return res;
 }
 
+/*
+    Method used by external Node.js server to pull the 
+    queue of web requests from the bridge canister.
+*/
+
 #[update]
 async fn pull_web_requests(access_key: String) -> PulledWebRequests {
-    
     let mut res: PulledWebRequests = PulledWebRequests {
         requests: Vec::new(),
         message: "".to_string(),
@@ -80,6 +87,11 @@ async fn pull_web_requests(access_key: String) -> PulledWebRequests {
     res.requests = requests;
     return res;
 }
+
+/*
+    Method used by the external Node.js server to push
+    a completed web response to the bridge canister.
+*/
 
 #[update]
 async fn push_web_response(access_key: String, response: StoredHttpResponse) -> PushedWebResponse {
@@ -116,6 +128,11 @@ async fn push_web_response(access_key: String, response: StoredHttpResponse) -> 
     res.id = Some(response.id.clone());
     return res;
 }
+
+/*
+    Method called by the original requesting canister 
+    to get the finished response from the bridge canister.
+*/
 
 #[update]
 async fn pull_web_response(access_key: String, id: String) -> PulledWebResponse {

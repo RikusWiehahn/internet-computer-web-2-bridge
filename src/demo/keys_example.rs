@@ -1,0 +1,2 @@
+pub const BRIDGE_ACCESS_KEY: &str = "<YOUR_ACCESS_KEY>";
+pub const BRIDGE_CANISTER_ID: &str = "<YOUR_BRIDGE_CANISTER_ID>";

@@ -4,6 +4,9 @@ use uuid::{Builder, Variant, Version};
 use crate::keys::BRIDGE_ACCESS_KEY;
 
 
+/*          
+    Generate a random UUID
+*/
 pub async fn generate_uuid() -> Result<String, String> {
   let res = ic_cdk::call(Principal::management_canister(), "raw_rand", ()).await;
   if res.is_err() {

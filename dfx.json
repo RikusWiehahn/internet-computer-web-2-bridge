@@ -4,8 +4,14 @@
       "candid": "src/bridge/bridge.did",
       "package": "bridge",
       "type": "rust"
+    },
+    "demo": {
+      "candid": "src/demo/demo.did",
+      "package": "demo",
+      "type": "rust"
     }
   },
+  
   "defaults": {
     "build": {
       "args": "",

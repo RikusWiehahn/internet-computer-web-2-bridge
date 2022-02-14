@@ -1,5 +1,9 @@
 use ic_cdk::export::candid::{CandidType, Deserialize};
 
+/*          
+    Types used by the bridge
+*/
+
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct PushedWebRequest {
     pub id: Option<String>,

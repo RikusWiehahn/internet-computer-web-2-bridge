@@ -5,6 +5,10 @@ use crate::types::*;
 use ic_cdk::storage;
 use ic_cdk_macros::*;
 
+/*          
+    Bridge canister state
+*/
+
 pub type WebRequestsList = Vec<StoredHttpRequest>;
 pub type WebResponsesList = Vec<StoredHttpResponse>;
 
