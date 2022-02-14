@@ -111,7 +111,13 @@ response: Object({"bitcoin": Object({"aud": Number(58993), "brl": Number(220562)
 
 ```
 
-### 6. Improvements
+### 6. Production
+
+In progress!
+
+- You should be able to run this Node server on any app hosting service like Heroku, Digital Ocean etc without too much hassle.
+
+### 7. Improvements
 
 If you know how to improve this repo please make a pull request! **Especially** if you know how to:
 
