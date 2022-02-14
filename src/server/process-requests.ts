@@ -62,7 +62,7 @@ const processWebRequest: ProcessWebRequest = async (req) => {
       data: JSON.parse(req.body),
     });
 
-    res.body = JSON.stringify(result.data.data);
+    res.body = JSON.stringify(result.data);
     res.status_code = BigInt(200);
     res.headers = req.headers;
     return res;
