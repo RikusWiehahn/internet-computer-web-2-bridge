@@ -11,7 +11,7 @@ This repo lets you make http JSON requests from the internet computer blockchain
 
 # Run it locally
 
-Please not this is a work in progress and hasn't been deployed on the main Internet Computer network yet.
+🚧 Please note this is a work in progress and hasn't been deployed on the main Internet Computer network yet!
 
 ## Configuration
 
