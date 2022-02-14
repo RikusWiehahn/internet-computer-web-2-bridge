@@ -25,7 +25,7 @@ const fetchAndProcessWebRequests = async () => {
     for (const req of pulled_web_requests.requests) {
       const result = await processWebRequest(req);
       let saved = await actor.push_web_response(access_key, result);
-      // if (saved) console.log(saved, result);
+      if (saved) console.log(`1 result pushed`);
     }
   } catch (e: any) {
     console.log({ e });

@@ -92,7 +92,12 @@ npm start
 
 ```
 
-- You should see the local replica print out the api response:
+- The response may take a while, the demo canister automatically submits the http request every 2 minutes so be patient!
+- You should see the local replica print out the api response from the demo api call:
+
+CoinGecko API price info:
+
+`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,aud,eur,brl,cad,dkk,hkd,jpy,nzd,nok,sgd,sek,chf,gbp`
 
 ```bash
 
