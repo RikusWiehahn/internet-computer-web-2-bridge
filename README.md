@@ -1,21 +1,27 @@
 # Web 2 Bridge for IC Dapps 🌉
 
-This repo lets you make json http requests from the internet computer blockchain to the regular internet 🙌
+This repo lets you make http JSON requests from the internet computer blockchain to the regular internet 🙌
 
 ## How it works
 
-1. Send an http request from any IC canister to the bridge canister. The bridge canisters aves the request in memory and returns an `id`.
+1. Submit an http request from any IC canister to the bridge canister. The bridge canister then saves the request in memory and returns an `id` for the request.
 2. An off-chain Node.js server continually pulls http requests from the bridge canister and processes them.
-3. The off-chain server sends the responses back to the bridge canister, which saves the response in memory.
-4. The original requesting canister can then fetch the response to it's http request from the bridge canister via the `id` that was returned.
+3. The off-chain server sends the responses back to the bridge canister, which then saves the response in memory.
+4. The original requesting canister can then fetch the response to it's http request from the bridge canister via the `id` that was initially returned.
+
+# Run it locally
+
+Please not this is a work in progress and hasn't been deployed on the main Internet Computer network yet.
 
 ## Configuration
 
 This guide assumes you have the usual dev-tools installed, node, npm, dfx etc.
 
-### 3. Create the canisters
+Start by cloning this repo to your machine.
 
-Run the command
+### 1. Create the canisters
+
+Open a terminal at the project root directory and run the following commands:
 
 ```bash
 # Starts the replica, running in the background
@@ -25,7 +31,7 @@ dfx start --background
 dfx canister create --all
 ```
 
-### 1. Create .env file
+### 2. Create .env file
 
 Create a file named `.env` in this repo's root directory and paste in the following:
 
@@ -41,7 +47,7 @@ BRIDGE_ACCESS_CODE = "<FOR_SECURE_REQUESTS_OVER_THE_BRIDGE>"
 
 - Replace `<FOR_SECURE_REQUESTS_OVER_THE_BRIDGE>` with a random access code (using an ssh keygen etc).
 
-### 2. Keys files
+### 3. Keys files
 
 Create a file called `keys.rs` in the bridge canister's folder (`src/bridge`) and paste in the following:
 
@@ -67,7 +73,7 @@ pub const PROD_BRIDGE_CANISTER_ID: &str = "<YOUR_LIVE_BRIDGE_CANISTER_ID>";
 - Replace `<THIS_CANISTERS_LOCAL_DEV_ID>` with the **demo** canister id in (`.dfx/local/canister_ids.json`).
 - Replace `<YOUR_LOCAL_DEV_BRIDGE_CANISTER_ID>` with the **bridge** canister id in (`.dfx/local/canister_ids.json`).
 
-### 3. Deploy the canisters
+### 4. Deploy the canisters
 
 Redeploy the canisters now that they are configured:
 
@@ -78,7 +84,7 @@ dfx deploy
 
 ```
 
-### 7. Start the nodejs server
+### 5. Start the nodejs server
 
 Open a new terminal window and run the following commands:
 
@@ -105,9 +111,9 @@ response: Object({"bitcoin": Object({"aud": Number(58993), "brl": Number(220562)
 
 ```
 
-### 8. Improvements
+### 6. Improvements
 
 If you know how to improve this repo please make a pull request! **Especially** if you know how to:
 
 - Simplify config (less manual copy/pasting)
-- Improve efficiency (does IC have a delay function like the thread::sleep function?). At the moment the calling function is horrifically wasteful on cycles.
+- Improve efficiency (does IC have a delay function like the thread::sleep function?). The current method of submitting a request to the bridge and using a counter to poll for the response is probably very wasteful on cycles.
